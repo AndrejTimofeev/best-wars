@@ -5,7 +5,7 @@ from random import choices
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from first_draft import (
+from old_versions.first_draft import (
     load_json,
     dump_json,
     choose_two_random_items,
