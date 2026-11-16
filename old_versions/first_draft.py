@@ -31,6 +31,18 @@ def k_function(
 
     The K-factor decreases from k_max towards k_min as the number
     of comparisons increases.
+
+    Args:
+        voices (int): Number of comparisons the item has participated in.
+        k_min (float): Minimum K-factor, approached as comparisons increase.
+        k_max (float): Maximum K-factor, used when there are no comparisons.
+        target_voices (float): Number of comparisons at which the K-factor
+            reaches the specified remaining fraction of its initial range.
+        remaining_fraction (float): Fraction of the initial K-factor range
+            remaining at target_voices. Must be between 0 and 1.
+
+    Returns:
+        k_factor (float): K-factor for Elo formula
     """
 
     s = target_voices / (1 / remaining_fraction - 1)
@@ -56,6 +68,24 @@ def calculate_elo(
     Each item's K-factor is calculated individually using its
     number of previous comparisons. New ratings are rounded
     to two decimal places.
+
+    Args:
+        winner_rating (float): Current rating of winner
+        loser_rating (float): Current rating of loser
+        winner_voices (int): Number of comparisons the winner has participated in.
+        loser_voices (int): Number of comparisons the loser has participated in.
+        scale_factor (int): Controls how strongly the rating difference
+            affects the predicted probability of victory.
+        k_min (float): Minimum K-factor, approached as comparisons increase.
+        k_max (float): Maximum K-factor, used when there are no comparisons.
+        target_voices (float): Number of comparisons at which the K-factor
+            reaches the specified remaining fraction of its initial range.
+        remaining_fraction (float): Fraction of the initial K-factor range
+            remaining at target_voices. Must be between 0 and 1.
+
+    Returns:
+        new_winner_rating (float): New rating of winner
+        new_loser_rating (float): New rating of loser
     """
 
     winner_k_factor = k_function(winner_voices, k_min, k_max, target_voices, remaining_fraction)
@@ -74,6 +104,13 @@ def choose_two_random_items(items: Items) -> list[str]:
     """
     Select two distinct items with probabilities inversely
     proportional to their number of previous comparisons.
+
+    Args:
+        items (Items): Dictionary of items with their ratings
+            and comparison counts.
+
+    Returns:
+        list[str]: IDs of two distinct randomly selected items.
     """
     ids = list(items.keys())
     weights = [1 / (items[a]["voices"] + 1) for a in ids]
@@ -105,10 +142,25 @@ def process_voting(
         remaining_fraction: float
     ) -> tuple[float, float, float, float]:
     """
-    Apply a vote, update the ratings and comparison counts
+    Apply a vote and update the ratings and comparison counts
     of the winner and loser.
 
-    Returns the old and new ratings of both items.
+    Args:
+        winner_id (str): ID of the winning item.
+        loser_id (str): ID of the losing item.
+        word_list (Items): Dictionary containing all items and their data.
+        scale_factor (int): Controls the effect of rating differences
+            on predicted victory probability.
+        k_min (float): Minimum K-factor.
+        k_max (float): Maximum K-factor.
+        target_voices (float): Number of comparisons at which the K-factor
+            reaches the specified remaining fraction of its initial range.
+        remaining_fraction (float): Fraction of the initial K-factor range
+            remaining at target_voices.
+
+    Returns:
+        tuple[float, float, float, float]: Old winner rating,
+            old loser rating, new winner rating, new loser rating.
     """
     winner = word_list[winner_id]
     loser = word_list[loser_id]
